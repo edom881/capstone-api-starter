@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.models.Category;
+import org.yearup.models.Product;
 import org.yearup.service.CategoryService;
 import org.yearup.service.ProductService;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,5 +80,57 @@ class CategoriesControllerTest
 
         // assert
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Missing category should return 404");
+    }
+
+    @Test
+    public void getProductsById_shouldReturnProductsFromService()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+
+        List<Product> products = Arrays.asList(
+                createProduct(1, "Smartphone", 499.99, 1),
+                createProduct(2, "Laptop", 899.99, 1)
+        );
+
+        when(productService.listByCategoryId(1)).thenReturn(products);
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        List<Product> actual = controller.getProductsById(1);
+
+        // assert
+        assertEquals(2, actual.size(), "Controller should return products from the selected category");
+        assertEquals("Smartphone", actual.get(0).getName(), "First product should be Smartphone");
+    }
+
+    @Test
+    public void getProductsById_withEmptyCategory_shouldReturnEmptyList()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+
+        when(productService.listByCategoryId(99999)).thenReturn(Collections.emptyList());
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        List<Product> actual = controller.getProductsById(99999);
+
+        // assert
+        assertEquals(0, actual.size(), "Category with no products should return an empty list");
+    }
+
+    private Product createProduct(int id, String name, double price, int categoryId)
+    {
+        Product product = new Product();
+        product.setProductId(id);
+        product.setName(name);
+        product.setPrice(price);
+        product.setCategoryId(categoryId);
+        return product;
     }
 }

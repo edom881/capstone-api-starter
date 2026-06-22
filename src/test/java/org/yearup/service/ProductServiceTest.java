@@ -175,6 +175,21 @@ class ProductServiceTest
     }
 
     @Test
+    public void listByCategoryId_shouldReturnProductsInCategory()
+    {
+        // act
+        List<Product> actual = productService.listByCategoryId(1);
+
+        // assert
+        assertEquals(3, actual.size(), "Electronics category should return 3 products");
+
+        for (Product product : actual)
+        {
+            assertEquals(1, product.getCategoryId(), "All products should be from category 1");
+        }
+    }
+
+    @Test
     public void update_shouldSaveEveryEditableProductField()
     {
         // arrange
@@ -217,4 +232,3 @@ class ProductServiceTest
         return product;
     }
 }
-
