@@ -10,8 +10,10 @@ import org.yearup.repository.CategoryRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,5 +43,33 @@ class CategoryServiceTest
         // assert
         assertEquals(3, actual.size(), "Should return all categories");
         assertEquals("Electronics", actual.get(0).getName(), "First category should be Electronics");
+    }
+
+    @Test
+    public void getById_withValidId_shouldReturnCategory()
+    {
+        // arrange
+        Category category = new Category(1, "Electronics", "Explore the latest gadgets and electronic devices.");
+
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(category));
+
+        // act
+        Category actual = categoryService.getById(1);
+
+        // assert
+        assertEquals("Electronics", actual.getName(), "Should return the category with id 1");
+    }
+
+    @Test
+    public void getById_withInvalidId_shouldReturnNull()
+    {
+        // arrange
+        when(categoryRepository.findById(99999)).thenReturn(Optional.empty());
+
+        // act
+        Category actual = categoryService.getById(99999);
+
+        // assert
+        assertNull(actual, "Missing category id should return null");
     }
 }
