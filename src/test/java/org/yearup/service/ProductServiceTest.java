@@ -13,9 +13,11 @@ import org.yearup.repository.ProductRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -172,6 +174,37 @@ class ProductServiceTest
         assertTrue(containsSmartphone, "Search should include non-featured products like Smartphone");
     }
 
+    @Test
+    public void update_shouldSaveEveryEditableProductField()
+    {
+        // arrange
+        Product existing = createProduct(1, "Smartphone", 499.99, 1, "Black", false);
+        existing.setDescription("Original description");
+        existing.setImageUrl("old-phone.jpg");
+        existing.setStock(50);
+
+        Product update = createProduct(1, "Updated Smartphone", 429.99, 2, "Silver", true);
+        update.setDescription("Updated description");
+        update.setImageUrl("updated-phone.jpg");
+        update.setStock(12);
+
+        when(productRepository.findById(1)).thenReturn(Optional.of(existing));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // act
+        Product actual = productService.update(1, update);
+
+        // assert
+        assertEquals("Updated Smartphone", actual.getName(), "Updating a product should persist the new name");
+        assertEquals(429.99, actual.getPrice(), 0.001, "Updating a product should persist the new price");
+        assertEquals(2, actual.getCategoryId(), "Updating a product should persist the new category");
+        assertEquals("Updated description", actual.getDescription(), "Updating a product should persist the new description");
+        assertEquals("Silver", actual.getSubCategory(), "Updating a product should persist the new subcategory");
+        assertEquals(12, actual.getStock(), "Updating a product should persist the new stock value");
+        assertTrue(actual.isFeatured(), "Updating a product should persist the new featured value");
+        assertEquals("updated-phone.jpg", actual.getImageUrl(), "Updating a product should persist the new image URL");
+    }
+
     private Product createProduct(int id, String name, double price, int categoryId, String subCategory, boolean featured)
     {
         Product product = new Product();
@@ -184,6 +217,4 @@ class ProductServiceTest
         return product;
     }
 }
-
-
 
