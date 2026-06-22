@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,5 +72,22 @@ class CategoryServiceTest
 
         // assert
         assertNull(actual, "Missing category id should return null");
+    }
+
+    @Test
+    public void create_shouldSaveNewCategory()
+    {
+        // arrange
+        Category category = new Category(99, "Books", "Read books from different categories.");
+        Category saved = new Category(4, "Books", "Read books from different categories.");
+
+        when(categoryRepository.save(any(Category.class))).thenReturn(saved);
+
+        // act
+        Category actual = categoryService.create(category);
+
+        // assert
+        assertEquals(4, actual.getCategoryId(), "Saved category should include the new id");
+        assertEquals("Books", actual.getName(), "Saved category should keep the category name");
     }
 }

@@ -2,12 +2,15 @@ package org.yearup.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.models.Category;
 import org.yearup.models.Product;
 import org.yearup.service.CategoryService;
 import org.yearup.service.ProductService;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -122,6 +125,41 @@ class CategoriesControllerTest
 
         // assert
         assertEquals(0, actual.size(), "Category with no products should return an empty list");
+    }
+
+    @Test
+    public void addCategory_shouldReturnCreatedCategory()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+        Category category = new Category(0, "Books", "Read books from different categories.");
+        Category saved = new Category(4, "Books", "Read books from different categories.");
+
+        when(categoryService.create(category)).thenReturn(saved);
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        ResponseEntity<Category> response = controller.addCategory(category);
+
+        // assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Adding a category should return 201 Created");
+        assertEquals(4, response.getBody().getCategoryId(), "Saved category should include the new id");
+        assertEquals("Books", response.getBody().getName(), "Saved category should keep the category name");
+    }
+
+    @Test
+    public void addCategory_shouldRequireAdminRole() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = CategoriesController.class.getMethod("addCategory", Category.class);
+
+        // act
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        // assert
+        assertEquals("hasRole('ROLE_ADMIN')", annotation.value(), "Adding a category should require admin role");
     }
 
     private Product createProduct(int id, String name, double price, int categoryId)
