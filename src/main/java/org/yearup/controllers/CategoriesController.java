@@ -52,8 +52,7 @@ public class CategoriesController
     @GetMapping("{categoryId}/products")
     public List<Product> getProductsById(@PathVariable int categoryId)
     {
-        // get a list of product by categoryId
-        return null;
+        return productService.listByCategoryId(categoryId);
     }
 
     // add annotation to call this method for a POST action
