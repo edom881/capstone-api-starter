@@ -28,8 +28,8 @@ public class CategoryService
 
     public Category create(Category category)
     {
-        // create a new category
-        return null;
+        category.setCategoryId(0);
+        return categoryRepository.save(category);
     }
 
     public Category update(int categoryId, Category category)
