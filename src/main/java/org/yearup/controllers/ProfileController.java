@@ -4,7 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.models.Profile;
@@ -40,5 +42,18 @@ public class ProfileController
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
         return profile;
+    }
+
+    @PutMapping("")
+    public Profile updateProfile(@RequestBody Profile profile, Principal principal)
+    {
+        String userName = principal.getName();
+        User user = userService.getByUserName(userName);
+        Profile updated = profileService.update(user.getId(), profile);
+
+        if (updated == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        return updated;
     }
 }
