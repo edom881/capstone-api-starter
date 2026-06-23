@@ -1,8 +1,11 @@
 package org.yearup.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.yearup.models.Product;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.ShoppingCartItem;
@@ -69,6 +72,48 @@ class ShoppingCartControllerTest
         // assert
         assertEquals(1, annotation.value().length, "Get cart should have a GET mapping");
         assertEquals("", annotation.value()[0], "Get cart should map to /cart");
+    }
+
+    @Test
+    public void addProductToCart_shouldReturnCreatedCartForLoggedInUser()
+    {
+        // arrange
+        ShoppingCartService shoppingCartService = mock(ShoppingCartService.class);
+        UserService userService = mock(UserService.class);
+        Principal principal = mock(Principal.class);
+        User user = new User(3, "george", "password", "ROLE_USER");
+        ShoppingCart cart = new ShoppingCart();
+        ShoppingCartItem item = new ShoppingCartItem();
+        item.setProduct(createProduct(15, "Bluetooth Speaker", 129.99));
+        item.setQuantity(1);
+        cart.add(item);
+
+        when(principal.getName()).thenReturn("george");
+        when(userService.getByUserName("george")).thenReturn(user);
+        when(shoppingCartService.addProduct(3, 15)).thenReturn(cart);
+
+        ShoppingCartController controller = new ShoppingCartController(shoppingCartService, userService);
+
+        // act
+        ResponseEntity<ShoppingCart> response = controller.addProductToCart(15, principal);
+
+        // assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode(), "Adding a product should return 201 Created");
+        assertEquals(1, response.getBody().get(15).getQuantity(), "New cart item should have quantity 1");
+    }
+
+    @Test
+    public void addProductToCart_shouldHavePostMapping() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = ShoppingCartController.class.getMethod("addProductToCart", int.class, Principal.class);
+
+        // act
+        PostMapping annotation = method.getAnnotation(PostMapping.class);
+
+        // assert
+        assertEquals(1, annotation.value().length, "Add product should have a POST mapping");
+        assertEquals("products/{productId}", annotation.value()[0], "Add product should map to /cart/products/{productId}");
     }
 
     private Product createProduct(int id, String name, double price)

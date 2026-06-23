@@ -2,6 +2,7 @@ package org.yearup.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +63,45 @@ class ShoppingCartServiceTest
         // assert
         assertEquals(0, actual.getItems().size(), "Empty cart should not contain items");
         assertEquals(0, actual.getTotal(), 0.001, "Empty cart total should be zero");
+    }
+
+    @Test
+    public void addProduct_whenProductIsNotInCart_shouldCreateNewCartRow()
+    {
+        // arrange
+        when(shoppingCartRepository.findByUserIdAndProductId(3, 15)).thenReturn(null);
+        when(shoppingCartRepository.findByUserId(3)).thenReturn(Collections.singletonList(createCartItem(3, 15, 1)));
+        when(productService.getById(15)).thenReturn(createProduct(15, "Bluetooth Speaker", 129.99));
+
+        // act
+        ShoppingCart actual = shoppingCartService.addProduct(3, 15);
+
+        // assert
+        ArgumentCaptor<CartItem> captor = ArgumentCaptor.forClass(CartItem.class);
+        verify(shoppingCartRepository).save(captor.capture());
+        assertEquals(3, captor.getValue().getUserId(), "New cart row should use the current user id");
+        assertEquals(15, captor.getValue().getProductId(), "New cart row should use the selected product id");
+        assertEquals(1, captor.getValue().getQuantity(), "New cart row should start with quantity 1");
+        assertEquals(1, actual.get(15).getQuantity(), "Returned cart should include the new item");
+    }
+
+    @Test
+    public void addProduct_whenProductIsAlreadyInCart_shouldIncreaseQuantity()
+    {
+        // arrange
+        CartItem existing = createCartItem(3, 15, 2);
+
+        when(shoppingCartRepository.findByUserIdAndProductId(3, 15)).thenReturn(existing);
+        when(shoppingCartRepository.findByUserId(3)).thenReturn(Collections.singletonList(createCartItem(3, 15, 3)));
+        when(productService.getById(15)).thenReturn(createProduct(15, "Bluetooth Speaker", 129.99));
+
+        // act
+        ShoppingCart actual = shoppingCartService.addProduct(3, 15);
+
+        // assert
+        verify(shoppingCartRepository).save(existing);
+        assertEquals(3, existing.getQuantity(), "Existing cart row quantity should increase by 1");
+        assertEquals(3, actual.get(15).getQuantity(), "Returned cart should include the updated quantity");
     }
 
     private CartItem createCartItem(int userId, int productId, int quantity)
