@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +103,38 @@ class ShoppingCartServiceTest
         verify(shoppingCartRepository).save(existing);
         assertEquals(3, existing.getQuantity(), "Existing cart row quantity should increase by 1");
         assertEquals(3, actual.get(15).getQuantity(), "Returned cart should include the updated quantity");
+    }
+
+    @Test
+    public void updateQuantity_whenProductIsInCart_shouldSaveNewQuantity()
+    {
+        // arrange
+        CartItem existing = createCartItem(3, 15, 1);
+
+        when(shoppingCartRepository.findByUserIdAndProductId(3, 15)).thenReturn(existing);
+        when(shoppingCartRepository.findByUserId(3)).thenReturn(Collections.singletonList(createCartItem(3, 15, 3)));
+        when(productService.getById(15)).thenReturn(createProduct(15, "Bluetooth Speaker", 129.99));
+
+        // act
+        ShoppingCart actual = shoppingCartService.updateQuantity(3, 15, 3);
+
+        // assert
+        verify(shoppingCartRepository).save(existing);
+        assertEquals(3, existing.getQuantity(), "Cart row quantity should be updated");
+        assertEquals(3, actual.get(15).getQuantity(), "Returned cart should include the updated quantity");
+    }
+
+    @Test
+    public void updateQuantity_whenProductIsNotInCart_shouldReturnNull()
+    {
+        // arrange
+        when(shoppingCartRepository.findByUserIdAndProductId(3, 15)).thenReturn(null);
+
+        // act
+        ShoppingCart actual = shoppingCartService.updateQuantity(3, 15, 3);
+
+        // assert
+        assertNull(actual, "Missing cart item should return null");
     }
 
     private CartItem createCartItem(int userId, int productId, int quantity)

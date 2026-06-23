@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.yearup.models.Product;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.ShoppingCartItem;
@@ -17,6 +19,7 @@ import java.lang.reflect.Method;
 import java.security.Principal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -114,6 +117,76 @@ class ShoppingCartControllerTest
         // assert
         assertEquals(1, annotation.value().length, "Add product should have a POST mapping");
         assertEquals("products/{productId}", annotation.value()[0], "Add product should map to /cart/products/{productId}");
+    }
+
+    @Test
+    public void updateProductQuantity_shouldReturnUpdatedCartForLoggedInUser()
+    {
+        // arrange
+        ShoppingCartService shoppingCartService = mock(ShoppingCartService.class);
+        UserService userService = mock(UserService.class);
+        Principal principal = mock(Principal.class);
+        User user = new User(3, "george", "password", "ROLE_USER");
+        ShoppingCart cart = new ShoppingCart();
+        ShoppingCartItem item = new ShoppingCartItem();
+        item.setProduct(createProduct(15, "Bluetooth Speaker", 129.99));
+        item.setQuantity(3);
+        cart.add(item);
+
+        ShoppingCartItem request = new ShoppingCartItem();
+        request.setQuantity(3);
+
+        when(principal.getName()).thenReturn("george");
+        when(userService.getByUserName("george")).thenReturn(user);
+        when(shoppingCartService.updateQuantity(3, 15, 3)).thenReturn(cart);
+
+        ShoppingCartController controller = new ShoppingCartController(shoppingCartService, userService);
+
+        // act
+        ShoppingCart actual = controller.updateProductQuantity(15, request, principal);
+
+        // assert
+        assertEquals(3, actual.get(15).getQuantity(), "Updated cart should return the new quantity");
+    }
+
+    @Test
+    public void updateProductQuantity_withMissingProduct_shouldThrowNotFound()
+    {
+        // arrange
+        ShoppingCartService shoppingCartService = mock(ShoppingCartService.class);
+        UserService userService = mock(UserService.class);
+        Principal principal = mock(Principal.class);
+        User user = new User(3, "george", "password", "ROLE_USER");
+        ShoppingCartItem request = new ShoppingCartItem();
+        request.setQuantity(3);
+
+        when(principal.getName()).thenReturn("george");
+        when(userService.getByUserName("george")).thenReturn(user);
+        when(shoppingCartService.updateQuantity(3, 15, 3)).thenReturn(null);
+
+        ShoppingCartController controller = new ShoppingCartController(shoppingCartService, userService);
+
+        // act
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> controller.updateProductQuantity(15, request, principal));
+
+        // assert
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Missing cart item should return 404");
+    }
+
+    @Test
+    public void updateProductQuantity_shouldHavePutMapping() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = ShoppingCartController.class.getMethod("updateProductQuantity",
+                int.class, ShoppingCartItem.class, Principal.class);
+
+        // act
+        PutMapping annotation = method.getAnnotation(PutMapping.class);
+
+        // assert
+        assertEquals(1, annotation.value().length, "Update quantity should have a PUT mapping");
+        assertEquals("products/{productId}", annotation.value()[0], "Update quantity should map to /cart/products/{productId}");
     }
 
     private Product createProduct(int id, String name, double price)
