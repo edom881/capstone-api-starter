@@ -179,8 +179,8 @@ class CategoriesControllerTest
         Category actual = controller.updateCategory(1, category);
 
         // assert
-        assertEquals(" Electronics", actual.getName(), "Controller should return the updated category name");
-        assertEquals(" category description.", actual.getDescription(), "Controller should return the updated description");
+        assertEquals( "Updated Electronics", actual.getName(), "Controller should return the updated category name");
+        assertEquals("Updated category description.", actual.getDescription(), "Controller should return the updated description");
     }
 
     @Test
