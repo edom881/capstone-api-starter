@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -187,6 +188,43 @@ class ShoppingCartControllerTest
         // assert
         assertEquals(1, annotation.value().length, "Update quantity should have a PUT mapping");
         assertEquals("products/{productId}", annotation.value()[0], "Update quantity should map to /cart/products/{productId}");
+    }
+
+    @Test
+    public void clearCart_shouldReturnEmptyCartForLoggedInUser()
+    {
+        // arrange
+        ShoppingCartService shoppingCartService = mock(ShoppingCartService.class);
+        UserService userService = mock(UserService.class);
+        Principal principal = mock(Principal.class);
+        User user = new User(3, "george", "password", "ROLE_USER");
+        ShoppingCart emptyCart = new ShoppingCart();
+
+        when(principal.getName()).thenReturn("george");
+        when(userService.getByUserName("george")).thenReturn(user);
+        when(shoppingCartService.clearCart(3)).thenReturn(emptyCart);
+
+        ShoppingCartController controller = new ShoppingCartController(shoppingCartService, userService);
+
+        // act
+        ShoppingCart actual = controller.clearCart(principal);
+
+        // assert
+        assertEquals(0, actual.getItems().size(), "Clearing the cart should return an empty cart");
+    }
+
+    @Test
+    public void clearCart_shouldHaveDeleteMapping() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = ShoppingCartController.class.getMethod("clearCart", Principal.class);
+
+        // act
+        DeleteMapping annotation = method.getAnnotation(DeleteMapping.class);
+
+        // assert
+        assertEquals(1, annotation.value().length, "Clear cart should have a DELETE mapping");
+        assertEquals("", annotation.value()[0], "Clear cart should map to /cart");
     }
 
     private Product createProduct(int id, String name, double price)

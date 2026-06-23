@@ -137,6 +137,20 @@ class ShoppingCartServiceTest
         assertNull(actual, "Missing cart item should return null");
     }
 
+    @Test
+    public void clearCart_shouldDeleteOnlyCurrentUsersCartItems()
+    {
+        // arrange
+        when(shoppingCartRepository.findByUserId(3)).thenReturn(Collections.emptyList());
+
+        // act
+        ShoppingCart actual = shoppingCartService.clearCart(3);
+
+        // assert
+        verify(shoppingCartRepository).deleteByUserId(3);
+        assertEquals(0, actual.getItems().size(), "Returned cart should be empty after clearing");
+    }
+
     private CartItem createCartItem(int userId, int productId, int quantity)
     {
         CartItem item = new CartItem();
