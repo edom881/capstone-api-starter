@@ -18,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CategoriesControllerTest
@@ -214,6 +215,57 @@ class CategoriesControllerTest
 
         // assert
         assertEquals("hasRole('ROLE_ADMIN')", annotation.value(), "Updating a category should require admin role");
+    }
+
+    @Test
+    public void deleteCategory_withValidId_shouldReturnNoContent()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+
+        when(categoryService.getById(1)).thenReturn(new Category(1, "Electronics", "Explore the latest gadgets."));
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        ResponseEntity<Void> response = controller.deleteCategory(1);
+
+        // assert
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode(), "Deleting a category should return 204 No Content");
+        verify(categoryService).delete(1);
+    }
+
+    @Test
+    public void deleteCategory_withInvalidId_shouldThrowNotFound()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+
+        when(categoryService.getById(99999)).thenReturn(null);
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> controller.deleteCategory(99999));
+
+        // assert
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Missing category should return 404");
+    }
+
+    @Test
+    public void deleteCategory_shouldRequireAdminRole() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = CategoriesController.class.getMethod("deleteCategory", int.class);
+
+        // act
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        // assert
+        assertEquals("hasRole('ROLE_ADMIN')", annotation.value(), "Deleting a category should require admin role");
     }
 
     private Product createProduct(int id, String name, double price, int categoryId)

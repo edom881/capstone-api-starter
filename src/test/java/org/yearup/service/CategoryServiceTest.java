@@ -15,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,5 +108,15 @@ class CategoryServiceTest
         // assert
         assertEquals("Updated Electronics", actual.getName(), "Updating a category should save the new name");
         assertEquals("Updated category description.", actual.getDescription(), "Updating a category should save the new description");
+    }
+
+    @Test
+    public void delete_shouldDeleteCategoryById()
+    {
+        // act
+        categoryService.delete(1);
+
+        // assert
+        verify(categoryRepository).deleteById(1);
     }
 }
