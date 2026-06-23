@@ -162,6 +162,60 @@ class CategoriesControllerTest
         assertEquals("hasRole('ROLE_ADMIN')", annotation.value(), "Adding a category should require admin role");
     }
 
+    @Test
+    public void updateCategory_withValidId_shouldReturnUpdatedCategory()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+        Category category = new Category(1, "Updated Electronics", "Updated category description.");
+
+        when(categoryService.getById(1)).thenReturn(new Category(1, "Electronics", "Old description."));
+        when(categoryService.update(1, category)).thenReturn(category);
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        Category actual = controller.updateCategory(1, category);
+
+        // assert
+        assertEquals(" Electronics", actual.getName(), "Controller should return the updated category name");
+        assertEquals(" category description.", actual.getDescription(), "Controller should return the updated description");
+    }
+
+    @Test
+    public void updateCategory_withInvalidId_shouldThrowNotFound()
+    {
+        // arrange
+        CategoryService categoryService = mock(CategoryService.class);
+        ProductService productService = mock(ProductService.class);
+        Category category = new Category(99999, "Missing", "Missing category.");
+
+        when(categoryService.getById(99999)).thenReturn(null);
+
+        CategoriesController controller = new CategoriesController(categoryService, productService);
+
+        // act
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                () -> controller.updateCategory(99999, category));
+
+        // assert
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode(), "Missing category should return 404");
+    }
+
+    @Test
+    public void updateCategory_shouldRequireAdminRole() throws NoSuchMethodException
+    {
+        // arrange
+        Method method = CategoriesController.class.getMethod("updateCategory", int.class, Category.class);
+
+        // act
+        PreAuthorize annotation = method.getAnnotation(PreAuthorize.class);
+
+        // assert
+        assertEquals("hasRole('ROLE_ADMIN')", annotation.value(), "Updating a category should require admin role");
+    }
+
     private Product createProduct(int id, String name, double price, int categoryId)
     {
         Product product = new Product();

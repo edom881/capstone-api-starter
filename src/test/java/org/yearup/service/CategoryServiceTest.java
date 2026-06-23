@@ -90,4 +90,22 @@ class CategoryServiceTest
         assertEquals(4, actual.getCategoryId(), "Saved category should include the new id");
         assertEquals("Books", actual.getName(), "Saved category should keep the category name");
     }
+
+    @Test
+    public void update_shouldSaveCategoryChanges()
+    {
+        // arrange
+        Category existing = new Category(1, "Electronics", "Old description.");
+        Category update = new Category(1, "Updated Electronics", "Updated category description.");
+
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(existing));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // act
+        Category actual = categoryService.update(1, update);
+
+        // assert
+        assertEquals("Updated Electronics", actual.getName(), "Updating a category should save the new name");
+        assertEquals("Updated category description.", actual.getDescription(), "Updating a category should save the new description");
+    }
 }
