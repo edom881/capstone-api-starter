@@ -41,6 +41,7 @@ public class CategoriesController
         return categoryService.getAllCategories();
     }
 
+    // This endpoint returns one category by ID, or 404 if the category does not exist.
     @GetMapping("{id}")
     public Category getById(@PathVariable int id)
     {
@@ -52,8 +53,7 @@ public class CategoriesController
         return category;
     }
 
-    // the url to return all products in category 1 would look like this
-    // https://localhost:8080/categories/1/products
+    // This endpoint returns all products that belong to the selected category.
     @GetMapping("{categoryId}/products")
     public List<Product> getProductsById(@PathVariable int categoryId)
     {
