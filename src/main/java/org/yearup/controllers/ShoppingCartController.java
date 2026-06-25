@@ -80,6 +80,7 @@ public class ShoppingCartController
         return cart;
     }
 
+    // This endpoint clears only the shopping cart for the currently logged-in user.
     @DeleteMapping("")
     public ShoppingCart clearCart(Principal principal)
     {
