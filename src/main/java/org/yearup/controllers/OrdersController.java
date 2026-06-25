@@ -29,6 +29,7 @@ public class OrdersController
         this.userService = userService;
     }
 
+    // This endpoint checks out the current user's cart and creates an order.
     @PostMapping("")
     public Order checkout(Principal principal)
     {

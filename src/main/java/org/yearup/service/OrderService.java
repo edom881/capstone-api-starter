@@ -55,6 +55,7 @@ public class OrderService
         Order savedOrder = orderRepository.save(order);
         List<OrderLineItem> lineItems = new ArrayList<>();
 
+        // Each cart item becomes one order line item before the cart is cleared.
         for (ShoppingCartItem cartItem : cart.getItems().values())
         {
             Product product = cartItem.getProduct();
