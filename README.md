@@ -1,5 +1,7 @@
 # EasyShop E-Commerce API
 
+<!-- This README explains the project features, setup steps, API endpoints, and interesting code for the capstone. -->
+
 EasyShop is a backend API for an e-commerce store. It supports the main shopping workflow from product browsing to checkout, including category browsing, shopping cart management, profile management, and order creation.
 
 The API includes the core features needed for a basic online store. Shoppers can browse the catalog, view product details, add products to a cart, update quantities, clear their cart, manage profile information, and place an order. Admin users can manage the store catalog by creating, updating, and deleting products and categories.
