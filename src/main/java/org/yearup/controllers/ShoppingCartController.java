@@ -50,6 +50,7 @@ public class ShoppingCartController
         return shoppingCartService.getByUserId(userId);
     }
 
+    // This endpoint adds a product to the current user's cart or increases the quantity if it is already there.
     @PostMapping("products/{productId}")
     public ResponseEntity<ShoppingCart> addProductToCart(@PathVariable int productId, Principal principal)
     {
@@ -61,6 +62,7 @@ public class ShoppingCartController
         return ResponseEntity.status(HttpStatus.CREATED).body(cart);
     }
 
+    // This endpoint updates the quantity for a product that is already in the current user's cart.
     @PutMapping("products/{productId}")
     public ShoppingCart updateProductQuantity(@PathVariable int productId,
                                               @RequestBody ShoppingCartItem item,
