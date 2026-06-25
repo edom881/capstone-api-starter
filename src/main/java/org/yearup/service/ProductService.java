@@ -19,10 +19,12 @@ public class ProductService
 
     public List<Product> search(Integer categoryId, Double minPrice, Double maxPrice, String subCategory)
     {
+        // Start with every possible matching product so the search does not leave out non-featured items.
         List<Product> products = categoryId != null
                 ? productRepository.findByCategoryId(categoryId)
                 : productRepository.findAll();
 
+        // Only apply the filters the user selected. Featured is not a search filter here.
         return products.stream()
                        .filter(p -> minPrice == null || p.getPrice() >= minPrice)
                        .filter(p -> maxPrice == null || p.getPrice() <= maxPrice)
