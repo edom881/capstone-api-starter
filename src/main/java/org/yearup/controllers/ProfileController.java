@@ -31,6 +31,7 @@ public class ProfileController
         this.userService = userService;
     }
 
+    // This endpoint returns the profile for the currently logged-in user.
     @GetMapping("")
     public Profile getProfile(Principal principal)
     {
