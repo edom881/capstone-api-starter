@@ -36,6 +36,7 @@ public class ShoppingCartController
         this.userService = userService;
     }
 
+    // This endpoint shows the shopping cart for the currently logged-in user.
     @GetMapping("")
     public ShoppingCart getCart(Principal principal)
     {

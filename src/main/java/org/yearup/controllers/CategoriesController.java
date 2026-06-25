@@ -80,6 +80,7 @@ public class CategoriesController
         return categoryService.update(id, category);
     }
 
+    // Only admins can delete a category, and the API returns 204 after it is removed.
     @DeleteMapping("{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable int id)
