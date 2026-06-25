@@ -60,6 +60,7 @@ public class CategoriesController
         return productService.listByCategoryId(categoryId);
     }
 
+    // Only admins can add new categories to organize products in the store.
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Category> addCategory(@RequestBody Category category)
@@ -68,6 +69,7 @@ public class CategoriesController
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+    // Only admins can update a category, and missing IDs return 404.
     @PutMapping("{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Category updateCategory(@PathVariable int id, @RequestBody Category category)
