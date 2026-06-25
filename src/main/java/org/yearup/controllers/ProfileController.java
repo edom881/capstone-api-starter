@@ -45,6 +45,7 @@ public class ProfileController
         return profile;
     }
 
+    // This endpoint updates the profile for the currently logged-in user.
     @PutMapping("")
     public Profile updateProfile(@RequestBody Profile profile, Principal principal)
     {
