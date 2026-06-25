@@ -51,6 +51,8 @@ public class ProductService
     public Product update(int productId, Product product)
     {
         Product existing = productRepository.findById(productId).orElseThrow();
+
+        // Copy every editable field so the database saves the full product update.
         existing.setName(product.getName());
         existing.setPrice(product.getPrice());
         existing.setCategoryId(product.getCategoryId());
