@@ -34,6 +34,7 @@ public class CategoriesController
         this.productService = productService;
     }
 
+    // This endpoint returns every category so shoppers can browse products by category.
     @GetMapping("")
     public List<Category> getAll()
     {
