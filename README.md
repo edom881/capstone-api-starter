@@ -253,15 +253,19 @@ Authorization: Bearer <token>
 ## Screenshots
 
 Add screenshots from the running project before final submission.
+These screenshots show each EasyShop project phase tested in Insomnia, plus the frontend app running against the backend API.
+ |
 
-Suggested screenshots:
+<img width="958" height="515" alt="Screenshot 2026-06-26 124424" src="https://github.com/user-attachments/assets/cfb9bb18-4aed-45db-9799-2e5f15d9cb7a" />
+<img width="959" height="503" alt="Screenshot 2026-06-26 125855" src="https://github.com/user-attachments/assets/5d9bb48b-ef10-4d19-a784-6e892576da5d" />
+<img width="954" height="484" alt="Screenshot 2026-06-26 125935" src="https://github.com/user-attachments/assets/158038c2-3d23-4c17-9d5a-2f211b24cef6" />
+<img width="955" height="518" alt="Screenshot 2026-06-26 130014" src="https://github.com/user-attachments/assets/ab254041-4b2b-4a60-93b5-21334160ea5c" />
+<img width="952" height="499" alt="Screenshot 2026-06-26 130039" src="https://github.com/user-attachments/assets/4791bf21-f75a-47bf-9f09-fec8f165ce5e" />
+<img width="949" height="548" alt="Screenshot 2026-06-26 130442" src="https://github.com/user-attachments/assets/ab3b5fe0-c9cf-437e-906e-ad7982ff22d4" />
+<img width="956" height="532" alt="Screenshot 2026-06-26 130506" src="https://github.com/user-attachments/assets/482541ff-b52d-461b-81a7-43b91ed4ff72" />
+<img width="953" height="524" alt="Screenshot 2026-06-26 130705" src="https://github.com/user-attachments/assets/e7bbc73b-e90f-48cb-9cc2-5cea4bd2226e" />
 
-| Screenshot | What to capture |
-| --- | --- |
-| Swagger UI | `http://localhost:8080/swagger-ui.html` |
-| Product list | `GET /products` in Insomnia |
-| Cart | `GET /cart` with a user JWT |
-| Checkout | `POST /orders` with a user JWT |
+
 
 ## Interesting Code
 
